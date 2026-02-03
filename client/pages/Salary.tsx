@@ -207,6 +207,13 @@ export default function Salary() {
                 onChanged={() =>
                   qc.invalidateQueries({ queryKey: ["salaries"] })
                 }
+                onUploadSuccess={() =>
+                  setSuccessModal({
+                    isOpen: true,
+                    title: "📄 Documents Uploaded!",
+                    message: "Your documents have been successfully uploaded.",
+                  })
+                }
               />
             ))}
           </TableBody>
