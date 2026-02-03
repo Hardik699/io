@@ -221,7 +221,9 @@ export default function EmployeeDetailsPage() {
             console.log("Employee loaded:", found);
           } else {
             console.warn("Employee not found with ID:", employeeId);
-            toast.error("Employee not found");
+            toast.error("❌ Employee Not Found", {
+              description: "This employee record could not be found in the system.",
+            });
             navigate("/hr");
           }
         }
