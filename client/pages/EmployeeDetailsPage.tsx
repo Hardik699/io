@@ -264,6 +264,19 @@ export default function EmployeeDetailsPage() {
     }
   };
 
+  const handleEditDocumentUpload = (docKey: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        handleEditFormChange(docKey, result);
+        toast.success("Document uploaded successfully!");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSaveEmployee = async () => {
     if (!employee) return;
 
