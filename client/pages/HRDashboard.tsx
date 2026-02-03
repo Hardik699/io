@@ -656,16 +656,21 @@ export default function HRDashboard() {
     }
   };
 
-  const handlePassbookUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePassbookUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setPassbookPreview(result);
-        setNewEmployee({ ...newEmployee, bankPassbook: result });
-      };
-      reader.readAsDataURL(file);
+      try {
+        toast.loading("Uploading bank passbook...");
+        const fileUrl = await uploadFileToSupabase(file, "documents/bank-passbooks");
+        toast.dismiss();
+        toast.success("Bank passbook uploaded successfully");
+        setPassbookPreview(fileUrl);
+        setNewEmployee({ ...newEmployee, bankPassbook: fileUrl });
+      } catch (error) {
+        toast.dismiss();
+        console.error("Error uploading passbook:", error);
+        toast.error("Failed to upload bank passbook");
+      }
     }
   };
 
