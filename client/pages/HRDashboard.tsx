@@ -739,6 +739,7 @@ export default function HRDashboard() {
         status: "active",
       };
 
+      console.log("Creating employee with data:", employee);
       const updatedEmployees = [...employees, employee];
       await saveEmployees(updatedEmployees);
 
