@@ -228,14 +228,49 @@ function SalaryRow({
 
   const upload = async () => {
     if (!files || files.length === 0) return;
-    const fd = new FormData();
-    Array.from(files).forEach((f) => fd.append("files", f));
-    const res = await fetch(`/api/salaries/${s.id}/documents`, {
-      method: "POST",
-      headers,
-      body: fd as any,
-    });
-    if (res.ok) setDocs(await res.json());
+
+    try {
+      toast.loading("Uploading documents to Supabase...");
+
+      // Upload each file to Supabase and collect URLs
+      const fileUrls: { originalName: string; url: string; mimeType: string }[] = [];
+
+      for (const file of Array.from(files)) {
+        const fileUrl = await uploadFileToSupabase(file, "documents/salary-slips");
+        fileUrls.push({
+          originalName: file.name,
+          url: fileUrl,
+          mimeType: file.type,
+        });
+      }
+
+      toast.dismiss();
+      toast.loading("Saving document metadata...");
+
+      // Send URLs to server to save metadata
+      const res = await fetch(`/api/salaries/${s.id}/documents`, {
+        method: "POST",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fileUrls }),
+      });
+
+      toast.dismiss();
+
+      if (res.ok) {
+        toast.success("Documents uploaded successfully");
+        setDocs(await res.json());
+        setFiles(null); // Clear selected files
+      } else {
+        toast.error("Failed to save document metadata");
+      }
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error uploading documents:", error);
+      toast.error("Failed to upload documents");
+    }
   };
 
   const delSalary = async () => {
