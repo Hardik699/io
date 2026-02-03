@@ -74,8 +74,9 @@ import {
   Check,
 } from "lucide-react";
 import { toast } from "sonner";
-import { uploadBase64ToSupabase } from "@/lib/supabase";
+import { uploadFileToSupabase, uploadBase64ToSupabase } from "@/lib/supabase";
 import AppNav from "@/components/Navigation";
+import SuccessModal from "@/components/SuccessModal";
 import {
   exportToCSV,
   exportToExcel,
@@ -367,6 +368,17 @@ export default function HRDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [userRole, setUserRole] = useState("");
 
+  // Success modal state
+  const [successModal, setSuccessModal] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message?: string;
+  }>({
+    isOpen: false,
+    title: "Success!",
+    message: "Data saved successfully!",
+  });
+
   // Blood groups
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -643,57 +655,94 @@ export default function HRDashboard() {
   };
 
   // Handle file uploads
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setPhotoPreview(result);
-        setNewEmployee({ ...newEmployee, photo: result });
-      };
-      reader.readAsDataURL(file);
+      try {
+        toast.loading("Uploading photo...");
+        const fileUrl = await uploadFileToSupabase(
+          file,
+          "documents/employee-photos",
+        );
+        toast.dismiss();
+        toast.success("Photo uploaded successfully");
+        setPhotoPreview(fileUrl);
+        setNewEmployee({ ...newEmployee, photo: fileUrl });
+      } catch (error) {
+        toast.dismiss();
+        console.error("Error uploading photo:", error);
+        toast.error("Failed to upload photo");
+      }
     }
   };
 
-  const handlePassbookUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePassbookUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setPassbookPreview(result);
-        setNewEmployee({ ...newEmployee, bankPassbook: result });
-      };
-      reader.readAsDataURL(file);
+      try {
+        toast.loading("Uploading bank passbook...");
+        const fileUrl = await uploadFileToSupabase(
+          file,
+          "documents/bank-passbooks",
+        );
+        toast.dismiss();
+        toast.success("Bank passbook uploaded successfully");
+        setPassbookPreview(fileUrl);
+        setNewEmployee({ ...newEmployee, bankPassbook: fileUrl });
+      } catch (error) {
+        toast.dismiss();
+        console.error("Error uploading passbook:", error);
+        toast.error("Failed to upload bank passbook");
+      }
     }
   };
 
   const handleDocumentUpload =
-    (documentType: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (documentType: string) =>
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result as string;
-          setDocumentPreviews({ ...documentPreviews, [documentType]: result });
-          setNewEmployee({ ...newEmployee, [documentType]: result });
-        };
-        reader.readAsDataURL(file);
+        try {
+          toast.loading(`Uploading ${documentType}...`);
+          const fileUrl = await uploadFileToSupabase(
+            file,
+            `documents/${documentType.toLowerCase().replace(/\s+/g, "-")}`,
+          );
+          toast.dismiss();
+          toast.success(`${documentType} uploaded successfully`);
+          setDocumentPreviews({ ...documentPreviews, [documentType]: fileUrl });
+          setNewEmployee({ ...newEmployee, [documentType]: fileUrl });
+        } catch (error) {
+          toast.dismiss();
+          console.error(`Error uploading ${documentType}:`, error);
+          toast.error(`Failed to upload ${documentType}`);
+        }
       }
     };
 
   // Handle photo upload for edit form
-  const handleEditPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditPhotoUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setEditPhotoPreview(result);
-        handleEditFormChange("photo", result);
-      };
-      reader.readAsDataURL(file);
+      try {
+        toast.loading("Uploading photo...");
+        const fileUrl = await uploadFileToSupabase(
+          file,
+          "documents/employee-photos",
+        );
+        toast.dismiss();
+        toast.success("Photo uploaded successfully");
+        setEditPhotoPreview(fileUrl);
+        handleEditFormChange("photo", fileUrl);
+      } catch (error) {
+        toast.dismiss();
+        console.error("Error uploading photo:", error);
+        toast.error("Failed to upload photo");
+      }
     }
   };
 
@@ -830,8 +879,11 @@ export default function HRDashboard() {
       setUanSkipReason("");
       setIsUanSkipped(false);
 
-      toast.success("✨ Employee Created!", {
-        description: `${newEmployee.fullName} has been successfully added to the system.`,
+      // Show beautiful success modal
+      setSuccessModal({
+        isOpen: true,
+        title: "🎉 Employee Created!",
+        message: `${newEmployee.fullName} has been successfully added to the system.`,
       });
     } catch (error) {
       console.error("Failed to create employee:", error);
@@ -909,8 +961,10 @@ export default function HRDashboard() {
 
     setEditingDepartment(null);
     setEditDepartmentForm({ name: "", manager: "" });
-    toast.success("✅ Department Updated!", {
-      description: `${editingDepartment?.name} has been updated successfully.`,
+    setSuccessModal({
+      isOpen: true,
+      title: "✅ Department Updated!",
+      message: `${editingDepartment?.name} has been updated successfully.`,
     });
   };
 
@@ -938,8 +992,10 @@ export default function HRDashboard() {
 
     // Reset form
     setNewDepartment({ name: "", manager: "" });
-    toast.success("✨ Department Created!", {
-      description: `${newDepartment.name} has been successfully added to the system.`,
+    setSuccessModal({
+      isOpen: true,
+      title: "🏢 Department Created!",
+      message: `${newDepartment.name} has been successfully added to the system.`,
     });
   };
 
@@ -1189,7 +1245,11 @@ Generated on: ${new Date().toLocaleString()}
       isEditing: false,
       editForm: {},
     }));
-    alert("Employee information updated successfully!");
+    setSuccessModal({
+      isOpen: true,
+      title: "✅ Updated!",
+      message: `${employeeDetailModal.employee!.fullName}'s information has been updated successfully.`,
+    });
   };
 
   const handleEditFormChange = (field: string, value: any) => {
@@ -4677,6 +4737,15 @@ Generated on: ${new Date().toLocaleString()}
           </div>
         )}
       </main>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        title={successModal.title}
+        message={successModal.message}
+        onClose={() => setSuccessModal({ ...successModal, isOpen: false })}
+        autoClose={3000}
+      />
     </div>
   );
 }

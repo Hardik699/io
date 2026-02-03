@@ -41,8 +41,9 @@ import {
   Download,
 } from "lucide-react";
 import { toast } from "sonner";
-import { uploadBase64ToSupabase } from "@/lib/supabase";
+import { uploadFileToSupabase, uploadBase64ToSupabase } from "@/lib/supabase";
 import AppNav from "@/components/Navigation";
+import SuccessModal from "@/components/SuccessModal";
 
 interface Employee {
   id: string;
@@ -158,6 +159,16 @@ export default function EmployeeDetailsPage() {
     employeeName: "",
   });
 
+  const [successModal, setSuccessModal] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message?: string;
+  }>({
+    isOpen: false,
+    title: "Success!",
+    message: "Data saved successfully!",
+  });
+
   useEffect(() => {
     const loadData = async () => {
       const isAuthenticated = localStorage.getItem("isAuthenticated");
@@ -270,18 +281,25 @@ export default function EmployeeDetailsPage() {
   };
 
   const handleEditDocumentUpload =
-    (docKey: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (docKey: string) => async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result as string;
-          handleEditFormChange(docKey, result);
+        try {
+          toast.loading(`Uploading ${docKey}...`);
+          const fileUrl = await uploadFileToSupabase(
+            file,
+            `documents/${docKey.toLowerCase().replace(/\s+/g, "-")}`,
+          );
+          toast.dismiss();
+          handleEditFormChange(docKey, fileUrl);
           toast.success("📄 Document Uploaded!", {
             description: "Document has been successfully uploaded.",
           });
-        };
-        reader.readAsDataURL(file);
+        } catch (error) {
+          toast.dismiss();
+          console.error(`Error uploading ${docKey}:`, error);
+          toast.error(`Failed to upload ${docKey}`);
+        }
       }
     };
 
@@ -327,8 +345,10 @@ export default function EmployeeDetailsPage() {
       setEmployee(updatedEmployee);
       setIsEditing(false);
       setEditForm({});
-      toast.success("✅ Employee Updated!", {
-        description: `${employee.fullName}'s information has been successfully saved.`,
+      setSuccessModal({
+        isOpen: true,
+        title: "✅ Employee Updated!",
+        message: `${employee.fullName}'s information has been successfully saved.`,
       });
     } catch (error) {
       console.error("Failed to save employee:", error);

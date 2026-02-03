@@ -247,21 +247,51 @@ const uploadDocs: RequestHandler = async (req, res) => {
     if (role !== "admin" && salary.userId !== userId)
       return res.status(403).json({ error: "Forbidden" });
 
+    // Handle both JSON (with URLs from Supabase) and FormData (legacy support)
     const files = (req as any).files as Express.Multer.File[] | undefined;
-    if (!files || files.length === 0)
-      return res.status(400).json({ error: "No files uploaded" });
+    const body = req.body as any;
+    const fileUrls = body?.fileUrls as
+      | Array<{ originalName: string; url: string; mimeType: string }>
+      | undefined;
 
-    for (const f of files) {
-      const doc = new SalaryDocModel({
-        id: nanoid(12),
-        salaryId: id,
-        originalName: f.originalname,
-        filename: f.filename,
-        mimeType: f.mimetype,
-        size: f.size,
-        url: buildDocUrl(f.filename),
-      });
-      await doc.save();
+    // Check if we have files or URLs
+    if (
+      (!files || files.length === 0) &&
+      (!fileUrls || fileUrls.length === 0)
+    ) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
+
+    // Handle multer files (legacy)
+    if (files && files.length > 0) {
+      for (const f of files) {
+        const doc = new SalaryDocModel({
+          id: nanoid(12),
+          salaryId: id,
+          originalName: f.originalname,
+          filename: f.filename,
+          mimeType: f.mimetype,
+          size: f.size,
+          url: buildDocUrl(f.filename),
+        });
+        await doc.save();
+      }
+    }
+
+    // Handle Supabase URLs
+    if (fileUrls && fileUrls.length > 0) {
+      for (const fileUrl of fileUrls) {
+        const doc = new SalaryDocModel({
+          id: nanoid(12),
+          salaryId: id,
+          originalName: fileUrl.originalName,
+          filename: fileUrl.originalName, // Store original name as filename for Supabase URLs
+          mimeType: fileUrl.mimeType,
+          size: 0, // Size not available from Supabase URLs
+          url: fileUrl.url,
+        });
+        await doc.save();
+      }
     }
 
     const documents = await SalaryDocModel.find({ salaryId: id }).lean();

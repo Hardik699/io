@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import SuccessModal from "@/components/SuccessModal";
 import {
   Table,
   TableBody,
@@ -21,6 +22,8 @@ import type {
   SalaryWithDocs,
   UserRole,
 } from "@shared/api";
+import { toast } from "sonner";
+import { uploadFileToSupabase } from "@/lib/supabase";
 
 function useRoleHeaders(role: UserRole, userId: string) {
   return useMemo(
@@ -64,6 +67,16 @@ export default function Salary() {
     year: new Date().getFullYear(),
     amount: 0,
     notes: "",
+  });
+
+  const [successModal, setSuccessModal] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message?: string;
+  }>({
+    isOpen: false,
+    title: "Success!",
+    message: "Data saved successfully!",
   });
 
   const onSubmit = (e: React.FormEvent) => {
@@ -194,11 +207,27 @@ export default function Salary() {
                 onChanged={() =>
                   qc.invalidateQueries({ queryKey: ["salaries"] })
                 }
+                onUploadSuccess={() =>
+                  setSuccessModal({
+                    isOpen: true,
+                    title: "📄 Documents Uploaded!",
+                    message: "Your documents have been successfully uploaded.",
+                  })
+                }
               />
             ))}
           </TableBody>
         </Table>
       </Card>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        title={successModal.title}
+        message={successModal.message}
+        onClose={() => setSuccessModal({ ...successModal, isOpen: false })}
+        autoClose={3000}
+      />
     </div>
   );
 }
@@ -208,11 +237,13 @@ function SalaryRow({
   headers,
   canManage,
   onChanged,
+  onUploadSuccess,
 }: {
   s: SalaryRecord;
   headers: Record<string, string>;
   canManage: boolean;
   onChanged: () => void;
+  onUploadSuccess?: () => void;
 }) {
   const [files, setFiles] = useState<FileList | null>(null);
   const [docs, setDocs] = useState<ListDocumentsResponse | null>(null);
@@ -226,14 +257,56 @@ function SalaryRow({
 
   const upload = async () => {
     if (!files || files.length === 0) return;
-    const fd = new FormData();
-    Array.from(files).forEach((f) => fd.append("files", f));
-    const res = await fetch(`/api/salaries/${s.id}/documents`, {
-      method: "POST",
-      headers,
-      body: fd as any,
-    });
-    if (res.ok) setDocs(await res.json());
+
+    try {
+      toast.loading("Uploading documents to Supabase...");
+
+      // Upload each file to Supabase and collect URLs
+      const fileUrls: {
+        originalName: string;
+        url: string;
+        mimeType: string;
+      }[] = [];
+
+      for (const file of Array.from(files)) {
+        const fileUrl = await uploadFileToSupabase(
+          file,
+          "documents/salary-slips",
+        );
+        fileUrls.push({
+          originalName: file.name,
+          url: fileUrl,
+          mimeType: file.type,
+        });
+      }
+
+      toast.dismiss();
+      toast.loading("Saving document metadata...");
+
+      // Send URLs to server to save metadata
+      const res = await fetch(`/api/salaries/${s.id}/documents`, {
+        method: "POST",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fileUrls }),
+      });
+
+      toast.dismiss();
+
+      if (res.ok) {
+        setDocs(await res.json());
+        setFiles(null); // Clear selected files
+        onUploadSuccess?.(); // Trigger success modal
+      } else {
+        toast.error("Failed to save document metadata");
+      }
+    } catch (error) {
+      toast.dismiss();
+      console.error("Error uploading documents:", error);
+      toast.error("Failed to upload documents");
+    }
   };
 
   const delSalary = async () => {
