@@ -221,11 +221,13 @@ function SalaryRow({
   headers,
   canManage,
   onChanged,
+  onUploadSuccess,
 }: {
   s: SalaryRecord;
   headers: Record<string, string>;
   canManage: boolean;
   onChanged: () => void;
+  onUploadSuccess?: () => void;
 }) {
   const [files, setFiles] = useState<FileList | null>(null);
   const [docs, setDocs] = useState<ListDocumentsResponse | null>(null);
