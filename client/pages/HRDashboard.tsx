@@ -643,16 +643,21 @@ export default function HRDashboard() {
   };
 
   // Handle file uploads
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setPhotoPreview(result);
-        setNewEmployee({ ...newEmployee, photo: result });
-      };
-      reader.readAsDataURL(file);
+      try {
+        toast.loading("Uploading photo...");
+        const fileUrl = await uploadFileToSupabase(file, "documents/employee-photos");
+        toast.dismiss();
+        toast.success("Photo uploaded successfully");
+        setPhotoPreview(fileUrl);
+        setNewEmployee({ ...newEmployee, photo: fileUrl });
+      } catch (error) {
+        toast.dismiss();
+        console.error("Error uploading photo:", error);
+        toast.error("Failed to upload photo");
+      }
     }
   };
 
