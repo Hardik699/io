@@ -69,6 +69,16 @@ export default function Salary() {
     notes: "",
   });
 
+  const [successModal, setSuccessModal] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message?: string;
+  }>({
+    isOpen: false,
+    title: "Success!",
+    message: "Data saved successfully!",
+  });
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const payload: CreateSalaryInput = {
