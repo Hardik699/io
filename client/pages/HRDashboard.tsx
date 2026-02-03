@@ -738,6 +738,7 @@ export default function HRDashboard() {
         ...newEmployee,
         employeeId: newEmployee.employeeId || nextEmployeeId,
         status: "active",
+        ...(isUanSkipped && uanSkipReason && { uanSkipReason }),
       };
 
       console.log("Creating employee with data:", employee);
