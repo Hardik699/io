@@ -76,6 +76,7 @@ import {
 import { toast } from "sonner";
 import { uploadFileToSupabase, uploadBase64ToSupabase } from "@/lib/supabase";
 import AppNav from "@/components/Navigation";
+import SuccessModal from "@/components/SuccessModal";
 import {
   exportToCSV,
   exportToExcel,
