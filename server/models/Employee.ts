@@ -97,6 +97,17 @@ const employeeSchema = new Schema<IEmployee>(
   { timestamps: true }
 );
 
+// Handle duplicate key error formatting
+employeeSchema.post('save', function(error: any, doc: any, next: any) {
+  if (error.name === 'MongoServerError' && error.code === 11000) {
+    const field = Object.keys(error.keyPattern)[0];
+    const newError = new Error(`Employee with this ${field} already exists`);
+    next(newError);
+  } else {
+    next(error);
+  }
+});
+
 export const Employee =
   mongoose.models.Employee ||
   mongoose.model<IEmployee>("Employee", employeeSchema);
