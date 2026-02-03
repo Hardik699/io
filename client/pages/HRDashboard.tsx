@@ -825,7 +825,9 @@ export default function HRDashboard() {
       setUanSkipReason("");
       setIsUanSkipped(false);
 
-      toast.success("Employee created successfully!");
+      toast.success("✨ Employee Created!", {
+        description: `${newEmployee.fullName} has been successfully added to the system.`,
+      });
     } catch (error) {
       console.error("Failed to create employee:", error);
       toast.error("Failed to create employee. Please try again.");
