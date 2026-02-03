@@ -411,19 +411,47 @@ export default function HRDashboard() {
           }
           if (deptRes.ok) {
             const deptData = await deptRes.json();
-            if (deptData.success) setDepartments(deptData.data);
+            if (deptData.success) {
+              // Normalize departments: ensure id field is set to _id
+              const normalizedDepts = deptData.data.map((dept: any) => ({
+                ...dept,
+                id: dept._id || dept.id,
+              }));
+              setDepartments(normalizedDepts);
+            }
           }
           if (leaveRes.ok) {
             const leaveData = await leaveRes.json();
-            if (leaveData.success) setLeaveRequests(leaveData.data);
+            if (leaveData.success) {
+              // Normalize leave requests: ensure id field is set to _id
+              const normalizedLeaves = leaveData.data.map((leave: any) => ({
+                ...leave,
+                id: leave._id || leave.id,
+              }));
+              setLeaveRequests(normalizedLeaves);
+            }
           }
           if (salaryRes.ok) {
             const salaryData = await salaryRes.json();
-            if (salaryData.success) setSalaryRecords(salaryData.data);
+            if (salaryData.success) {
+              // Normalize salary records: ensure id field is set to _id
+              const normalizedSalaries = salaryData.data.map((salary: any) => ({
+                ...salary,
+                id: salary._id || salary.id,
+              }));
+              setSalaryRecords(normalizedSalaries);
+            }
           }
           if (attRes.ok) {
             const attData = await attRes.json();
-            if (attData.success) setAttendanceRecords(attData.data);
+            if (attData.success) {
+              // Normalize attendance: ensure id field is set to _id
+              const normalizedAtt = attData.data.map((att: any) => ({
+                ...att,
+                id: att._id || att.id,
+              }));
+              setAttendanceRecords(normalizedAtt);
+            }
           }
         } catch (error) {
           console.error("Failed to load HR data from API:", error);
