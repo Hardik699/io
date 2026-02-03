@@ -1224,7 +1224,11 @@ Generated on: ${new Date().toLocaleString()}
       isEditing: false,
       editForm: {},
     }));
-    alert("Employee information updated successfully!");
+    setSuccessModal({
+      isOpen: true,
+      title: "✅ Updated!",
+      message: `${employeeDetailModal.employee!.fullName}'s information has been updated successfully.`,
+    });
   };
 
   const handleEditFormChange = (field: string, value: any) => {
