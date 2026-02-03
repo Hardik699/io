@@ -931,7 +931,9 @@ export default function HRDashboard() {
 
     // Reset form
     setNewDepartment({ name: "", manager: "" });
-    toast.success("Department created successfully");
+    toast.success("✨ Department Created!", {
+      description: `${newDepartment.name} has been successfully added to the system.`,
+    });
   };
 
   // Handle employee deletion
