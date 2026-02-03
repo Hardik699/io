@@ -41,7 +41,7 @@ import {
   Download,
 } from "lucide-react";
 import { toast } from "sonner";
-import { uploadBase64ToSupabase } from "@/lib/supabase";
+import { uploadFileToSupabase, uploadBase64ToSupabase } from "@/lib/supabase";
 import AppNav from "@/components/Navigation";
 
 interface Employee {
