@@ -159,6 +159,16 @@ export default function EmployeeDetailsPage() {
     employeeName: "",
   });
 
+  const [successModal, setSuccessModal] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message?: string;
+  }>({
+    isOpen: false,
+    title: "Success!",
+    message: "Data saved successfully!",
+  });
+
   useEffect(() => {
     const loadData = async () => {
       const isAuthenticated = localStorage.getItem("isAuthenticated");
