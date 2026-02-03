@@ -4712,6 +4712,15 @@ Generated on: ${new Date().toLocaleString()}
           </div>
         )}
       </main>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={successModal.isOpen}
+        title={successModal.title}
+        message={successModal.message}
+        onClose={() => setSuccessModal({ ...successModal, isOpen: false })}
+        autoClose={3000}
+      />
     </div>
   );
 }
