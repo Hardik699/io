@@ -541,8 +541,13 @@ export default function HRDashboard() {
             }
           } else {
             const errorData = await response.json().catch(() => ({}));
-            const errorMsg = errorData.error || `Server error: ${response.status}`;
-            console.error("Failed to create employee:", errorMsg, response.status);
+            const errorMsg =
+              errorData.error || `Server error: ${response.status}`;
+            console.error(
+              "Failed to create employee:",
+              errorMsg,
+              response.status,
+            );
             toast.error(`Creation failed: ${errorMsg}`);
           }
         }
@@ -1828,7 +1833,10 @@ Generated on: ${new Date().toLocaleString()}
                             </SelectTrigger>
                             <SelectContent className="bg-slate-800 border-slate-700 text-white">
                               {departments.map((dept) => (
-                                <SelectItem key={dept._id || dept.id || dept.name} value={dept.name}>
+                                <SelectItem
+                                  key={dept._id || dept.id || dept.name}
+                                  value={dept.name}
+                                >
                                   {dept.name}
                                 </SelectItem>
                               ))}
@@ -2312,7 +2320,10 @@ Generated on: ${new Date().toLocaleString()}
                           All Departments
                         </SelectItem>
                         {departments.map((dept) => (
-                          <SelectItem key={dept._id || dept.id || dept.name} value={dept.name}>
+                          <SelectItem
+                            key={dept._id || dept.id || dept.name}
+                            value={dept.name}
+                          >
                             {dept.name} (
                             {getEmployeesByDepartment(dept.name).length})
                           </SelectItem>
@@ -2758,9 +2769,13 @@ Generated on: ${new Date().toLocaleString()}
                       const deptId = department._id || department.id;
 
                       return (
-                        <div key={deptId || department.name} className="space-y-3">
+                        <div
+                          key={deptId || department.name}
+                          className="space-y-3"
+                        >
                           <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700">
-                            {editingDepartment?._id === deptId || editingDepartment?.id === department.id ? (
+                            {editingDepartment?._id === deptId ||
+                            editingDepartment?.id === department.id ? (
                               /* Edit Mode */
                               <div className="space-y-4">
                                 <div className="space-y-2">
@@ -2889,7 +2904,11 @@ Generated on: ${new Date().toLocaleString()}
                                   <div className="space-y-2">
                                     {departmentEmployees.map((employee) => (
                                       <div
-                                        key={employee._id || employee.id || employee.employeeId}
+                                        key={
+                                          employee._id ||
+                                          employee.id ||
+                                          employee.employeeId
+                                        }
                                         className="p-3 bg-slate-700/30 rounded-lg border border-slate-600"
                                       >
                                         <div className="flex items-center space-x-3">
@@ -3656,7 +3675,10 @@ Generated on: ${new Date().toLocaleString()}
                           </SelectTrigger>
                           <SelectContent className="bg-slate-800 border-slate-700 text-white">
                             {departments.map((dept) => (
-                              <SelectItem key={dept._id || dept.id || dept.name} value={dept.name}>
+                              <SelectItem
+                                key={dept._id || dept.id || dept.name}
+                                value={dept.name}
+                              >
                                 {dept.name}
                               </SelectItem>
                             ))}
@@ -4395,7 +4417,11 @@ Generated on: ${new Date().toLocaleString()}
                           <div className="space-y-3">
                             {employeeSalaryRecords.map((record) => (
                               <Card
-                                key={record._id || record.id || `${record.employeeId}-${record.month}`}
+                                key={
+                                  record._id ||
+                                  record.id ||
+                                  `${record.employeeId}-${record.month}`
+                                }
                                 className="bg-slate-800/30 border-slate-700"
                               >
                                 <CardContent className="p-4">

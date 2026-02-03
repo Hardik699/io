@@ -215,14 +215,17 @@ export default function EmployeeDetailsPage() {
         setSalaryRecords(salary);
 
         if (employeeId) {
-          const found = employees.find((e) => e.id === employeeId || e._id === employeeId);
+          const found = employees.find(
+            (e) => e.id === employeeId || e._id === employeeId,
+          );
           if (found) {
             setEmployee(found);
             console.log("Employee loaded:", found);
           } else {
             console.warn("Employee not found with ID:", employeeId);
             toast.error("❌ Employee Not Found", {
-              description: "This employee record could not be found in the system.",
+              description:
+                "This employee record could not be found in the system.",
             });
             navigate("/hr");
           }
@@ -266,20 +269,21 @@ export default function EmployeeDetailsPage() {
     }
   };
 
-  const handleEditDocumentUpload = (docKey: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        handleEditFormChange(docKey, result);
-        toast.success("📄 Document Uploaded!", {
-          description: "Document has been successfully uploaded.",
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const handleEditDocumentUpload =
+    (docKey: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          handleEditFormChange(docKey, result);
+          toast.success("📄 Document Uploaded!", {
+            description: "Document has been successfully uploaded.",
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    };
 
   const handleSaveEmployee = async () => {
     if (!employee) return;
@@ -911,7 +915,11 @@ export default function EmployeeDetailsPage() {
                             <input
                               type="file"
                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                              onChange={isEditing ? handleEditDocumentUpload(docType.key) : handleEditDocumentUpload(docType.key)}
+                              onChange={
+                                isEditing
+                                  ? handleEditDocumentUpload(docType.key)
+                                  : handleEditDocumentUpload(docType.key)
+                              }
                               disabled={!isEditing}
                               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                             />
@@ -959,7 +967,9 @@ export default function EmployeeDetailsPage() {
                               variant="outline"
                               size="sm"
                               className="w-full text-xs border-red-600 text-red-400 hover:bg-red-500/20"
-                              onClick={() => handleEditFormChange(docType.key, "")}
+                              onClick={() =>
+                                handleEditFormChange(docType.key, "")
+                              }
                             >
                               <Trash2 className="h-3 w-3 mr-1" />
                               Remove

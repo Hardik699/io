@@ -94,12 +94,12 @@ const employeeSchema = new Schema<IEmployee>(
     resignationLetter: String,
     deactivationDate: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Handle duplicate key error formatting
-employeeSchema.post('save', function(error: any, doc: any, next: any) {
-  if (error.name === 'MongoServerError' && error.code === 11000) {
+employeeSchema.post("save", function (error: any, doc: any, next: any) {
+  if (error.name === "MongoServerError" && error.code === 11000) {
     const field = Object.keys(error.keyPattern)[0];
     const newError = new Error(`Employee with this ${field} already exists`);
     next(newError);
