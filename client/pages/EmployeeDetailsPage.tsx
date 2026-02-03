@@ -271,7 +271,9 @@ export default function EmployeeDetailsPage() {
       reader.onload = (e) => {
         const result = e.target?.result as string;
         handleEditFormChange(docKey, result);
-        toast.success("Document uploaded successfully!");
+        toast.success("📄 Document Uploaded!", {
+          description: "Document has been successfully uploaded.",
+        });
       };
       reader.readAsDataURL(file);
     }
