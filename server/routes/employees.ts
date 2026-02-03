@@ -68,9 +68,23 @@ const createEmployee: RequestHandler = async (req, res) => {
       message: "Employee created successfully",
     });
   } catch (error) {
+    let errorMessage = "Failed to create employee";
+
+    if (error instanceof Error) {
+      // Handle MongoDB duplicate key errors
+      if (error.message.includes("E11000")) {
+        const match = error.message.match(/index: (\w+)_1/);
+        const field = match ? match[1] : "unknown field";
+        errorMessage = `Duplicate value for ${field}. This value already exists in the system.`;
+      } else {
+        errorMessage = error.message;
+      }
+      console.error("Employee creation error:", error.message);
+    }
+
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to create employee",
+      error: errorMessage,
     });
   }
 };
