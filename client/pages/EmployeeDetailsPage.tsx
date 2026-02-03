@@ -861,28 +861,31 @@ export default function EmployeeDetailsPage() {
                 </Badge>
               </div>
 
-              {/* Documents - Only show when not editing */}
-              {!isEditing && (
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2 border-b border-slate-700 pb-2">
-                    <FileText className="h-5 w-5 text-purple-400" />
-                    <h3 className="text-lg font-semibold text-white">
-                      Document Status
-                    </h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {documentTypes.map((docType) => {
-                      const hasDoc = employee[docType.key as keyof Employee];
-                      return (
-                        <div
-                          key={docType.key}
-                          className="p-4 bg-slate-800/30 rounded border border-slate-700 space-y-3"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <docType.icon className="h-4 w-4 text-purple-400" />
-                            <span className="text-slate-300 font-medium">
-                              {docType.label}
-                            </span>
+              {/* Documents */}
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2 border-b border-slate-700 pb-2">
+                  <FileText className="h-5 w-5 text-purple-400" />
+                  <h3 className="text-lg font-semibold text-white">
+                    {isEditing ? "Upload Documents" : "Document Status"}
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {documentTypes.map((docType) => {
+                    const hasDoc = isEditing
+                      ? (editForm[docType.key as keyof Employee] as string)
+                      : (employee[docType.key as keyof Employee] as string);
+
+                    return (
+                      <div
+                        key={docType.key}
+                        className="p-4 bg-slate-800/30 rounded border border-slate-700 space-y-3"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <docType.icon className="h-4 w-4 text-purple-400" />
+                          <span className="text-slate-300 font-medium">
+                            {docType.label}
+                          </span>
+                          {!isEditing && (
                             <Badge
                               variant="secondary"
                               className={`text-xs ml-auto ${
@@ -893,9 +896,47 @@ export default function EmployeeDetailsPage() {
                             >
                               {hasDoc ? "✓" : "✗"}
                             </Badge>
-                          </div>
+                          )}
+                        </div>
 
-                          {hasDoc && (
+                        {isEditing ? (
+                          <div className="space-y-2">
+                            <div className="relative">
+                              <input
+                                type="file"
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                                onChange={handleEditDocumentUpload(docType.key)}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className={`w-full text-xs ${
+                                  hasDoc
+                                    ? "border-blue-500 text-blue-400 hover:bg-blue-500/20"
+                                    : "border-slate-600 text-slate-300"
+                                }`}
+                              >
+                                <Upload className="h-3 w-3 mr-1" />
+                                {hasDoc ? "Change" : "Upload"}
+                              </Button>
+                            </div>
+                            {hasDoc && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="w-full text-xs border-red-600 text-red-400 hover:bg-red-500/20"
+                                onClick={() => handleEditFormChange(docType.key, "")}
+                              >
+                                <Trash2 className="h-3 w-3 mr-1" />
+                                Remove
+                              </Button>
+                            )}
+                          </div>
+                        ) : (
+                          hasDoc && (
                             <Button
                               onClick={() =>
                                 handleOpenDocumentPreview(
@@ -911,13 +952,13 @@ export default function EmployeeDetailsPage() {
                               <Eye className="h-3 w-3 mr-1" />
                               Preview
                             </Button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                          )
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
         )}
