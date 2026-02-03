@@ -698,14 +698,22 @@ export default function HRDashboard() {
       !newEmployee.accountNumber ||
       !newEmployee.ifscCode
     ) {
-      alert(
-        "Please fill in all required fields:\n\n" +
-          "Personal: Full Name, Birth Date, Mobile Number, Current Address, Aadhaar Number, PAN Number\n" +
-          "Job: Department, Joining Date, Table Number\n" +
-          "Banking: Account Number, IFSC Code\n" +
-          "Contact: Email\n\n" +
-          "For UAN Number: Either provide the number OR check 'Skip UAN' and provide a reason",
-      );
+      const missingFields = [];
+      if (!newEmployee.fullName) missingFields.push("Full Name");
+      if (!newEmployee.email) missingFields.push("Email");
+      if (!newEmployee.department) missingFields.push("Department");
+      if (!newEmployee.tableNumber) missingFields.push("Table Number");
+      if (!newEmployee.aadhaarNumber) missingFields.push("Aadhaar Number");
+      if (!newEmployee.panNumber) missingFields.push("PAN Number");
+      if (!uanValid) missingFields.push("UAN Number (or skip with reason)");
+      if (!newEmployee.address) missingFields.push("Current Address");
+      if (!newEmployee.birthDate) missingFields.push("Birth Date");
+      if (!newEmployee.mobileNumber) missingFields.push("Mobile Number");
+      if (!newEmployee.joiningDate) missingFields.push("Joining Date");
+      if (!newEmployee.accountNumber) missingFields.push("Account Number");
+      if (!newEmployee.ifscCode) missingFields.push("IFSC Code");
+
+      toast.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
     const used = new Set(
