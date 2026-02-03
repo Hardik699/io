@@ -15,7 +15,8 @@ const getEmployees: RequestHandler = async (_req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch employees",
+      error:
+        error instanceof Error ? error.message : "Failed to fetch employees",
     });
   }
 };
@@ -40,7 +41,8 @@ const getEmployeeById: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch employee",
+      error:
+        error instanceof Error ? error.message : "Failed to fetch employee",
     });
   }
 };
@@ -68,9 +70,23 @@ const createEmployee: RequestHandler = async (req, res) => {
       message: "Employee created successfully",
     });
   } catch (error) {
+    let errorMessage = "Failed to create employee";
+
+    if (error instanceof Error) {
+      // Handle MongoDB duplicate key errors
+      if (error.message.includes("E11000")) {
+        const match = error.message.match(/index: (\w+)_1/);
+        const field = match ? match[1] : "unknown field";
+        errorMessage = `Duplicate value for ${field}. This value already exists in the system.`;
+      } else {
+        errorMessage = error.message;
+      }
+      console.error("Employee creation error:", error.message);
+    }
+
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to create employee",
+      error: errorMessage,
     });
   }
 };
@@ -99,9 +115,28 @@ const updateEmployee: RequestHandler = async (req, res) => {
       message: "Employee updated successfully",
     });
   } catch (error) {
+    let errorMessage = "Failed to update employee";
+
+    if (error instanceof Error) {
+      // Handle MongoDB duplicate key errors
+      if (
+        error.message.includes("E11000") ||
+        error.message.includes("already exists")
+      ) {
+        const match =
+          error.message.match(/index: (\w+)_1/) ||
+          error.message.match(/(\w+) already exists/);
+        const field = match ? match[1] : "unknown field";
+        errorMessage = `Duplicate value for ${field}. This value already exists in the system.`;
+      } else {
+        errorMessage = error.message;
+      }
+      console.error("Employee update error:", error.message);
+    }
+
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to update employee",
+      error: errorMessage,
     });
   }
 };
@@ -128,7 +163,8 @@ const deleteEmployee: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to delete employee",
+      error:
+        error instanceof Error ? error.message : "Failed to delete employee",
     });
   }
 };

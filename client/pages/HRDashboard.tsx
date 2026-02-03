@@ -411,19 +411,47 @@ export default function HRDashboard() {
           }
           if (deptRes.ok) {
             const deptData = await deptRes.json();
-            if (deptData.success) setDepartments(deptData.data);
+            if (deptData.success) {
+              // Normalize departments: ensure id field is set to _id
+              const normalizedDepts = deptData.data.map((dept: any) => ({
+                ...dept,
+                id: dept._id || dept.id,
+              }));
+              setDepartments(normalizedDepts);
+            }
           }
           if (leaveRes.ok) {
             const leaveData = await leaveRes.json();
-            if (leaveData.success) setLeaveRequests(leaveData.data);
+            if (leaveData.success) {
+              // Normalize leave requests: ensure id field is set to _id
+              const normalizedLeaves = leaveData.data.map((leave: any) => ({
+                ...leave,
+                id: leave._id || leave.id,
+              }));
+              setLeaveRequests(normalizedLeaves);
+            }
           }
           if (salaryRes.ok) {
             const salaryData = await salaryRes.json();
-            if (salaryData.success) setSalaryRecords(salaryData.data);
+            if (salaryData.success) {
+              // Normalize salary records: ensure id field is set to _id
+              const normalizedSalaries = salaryData.data.map((salary: any) => ({
+                ...salary,
+                id: salary._id || salary.id,
+              }));
+              setSalaryRecords(normalizedSalaries);
+            }
           }
           if (attRes.ok) {
             const attData = await attRes.json();
-            if (attData.success) setAttendanceRecords(attData.data);
+            if (attData.success) {
+              // Normalize attendance: ensure id field is set to _id
+              const normalizedAtt = attData.data.map((att: any) => ({
+                ...att,
+                id: att._id || att.id,
+              }));
+              setAttendanceRecords(normalizedAtt);
+            }
           }
         } catch (error) {
           console.error("Failed to load HR data from API:", error);
@@ -483,6 +511,11 @@ export default function HRDashboard() {
               ...emp,
               id: emp._id, // Ensure id is synced with _id
             });
+          } else {
+            const errorData = await response.json();
+            const errorMsg = errorData.error || "Failed to update employee";
+            console.error("Failed to update employee:", errorMsg);
+            toast.error(`Update failed: ${errorMsg}`);
           }
         } else {
           // Create new employee - capture returned _id
@@ -502,10 +535,20 @@ export default function HRDashboard() {
                 id: result.data._id, // Sync id with _id for client-side lookups
               });
             } else {
-              employeesWithIds.push(emp);
+              const errorMsg = result.error || "Unknown error";
+              console.error("Server returned failure:", errorMsg);
+              toast.error(`Creation failed: ${errorMsg}`);
             }
           } else {
-            employeesWithIds.push(emp);
+            const errorData = await response.json().catch(() => ({}));
+            const errorMsg =
+              errorData.error || `Server error: ${response.status}`;
+            console.error(
+              "Failed to create employee:",
+              errorMsg,
+              response.status,
+            );
+            toast.error(`Creation failed: ${errorMsg}`);
           }
         }
       }
@@ -513,6 +556,7 @@ export default function HRDashboard() {
       setEmployees(employeesWithIds);
     } catch (error) {
       console.error("Failed to save employees:", error);
+      toast.error("Failed to save employee. Check console for details.");
       setEmployees(updatedEmployees);
     }
   };
@@ -687,14 +731,22 @@ export default function HRDashboard() {
       !newEmployee.accountNumber ||
       !newEmployee.ifscCode
     ) {
-      alert(
-        "Please fill in all required fields:\n\n" +
-          "Personal: Full Name, Birth Date, Mobile Number, Current Address, Aadhaar Number, PAN Number\n" +
-          "Job: Department, Joining Date, Table Number\n" +
-          "Banking: Account Number, IFSC Code\n" +
-          "Contact: Email\n\n" +
-          "For UAN Number: Either provide the number OR check 'Skip UAN' and provide a reason",
-      );
+      const missingFields = [];
+      if (!newEmployee.fullName) missingFields.push("Full Name");
+      if (!newEmployee.email) missingFields.push("Email");
+      if (!newEmployee.department) missingFields.push("Department");
+      if (!newEmployee.tableNumber) missingFields.push("Table Number");
+      if (!newEmployee.aadhaarNumber) missingFields.push("Aadhaar Number");
+      if (!newEmployee.panNumber) missingFields.push("PAN Number");
+      if (!uanValid) missingFields.push("UAN Number (or skip with reason)");
+      if (!newEmployee.address) missingFields.push("Current Address");
+      if (!newEmployee.birthDate) missingFields.push("Birth Date");
+      if (!newEmployee.mobileNumber) missingFields.push("Mobile Number");
+      if (!newEmployee.joiningDate) missingFields.push("Joining Date");
+      if (!newEmployee.accountNumber) missingFields.push("Account Number");
+      if (!newEmployee.ifscCode) missingFields.push("IFSC Code");
+
+      toast.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
     const used = new Set(
@@ -714,12 +766,15 @@ export default function HRDashboard() {
     setIsLoading(true);
 
     try {
+      const nextEmployeeId = getNextEmployeeId();
       const employee: Employee = {
-        employeeId: newEmployee.employeeId || getNextEmployeeId(),
         ...newEmployee,
+        employeeId: newEmployee.employeeId || nextEmployeeId,
         status: "active",
+        ...(isUanSkipped && uanSkipReason && { uanSkipReason }),
       };
 
+      console.log("Creating employee with data:", employee);
       const updatedEmployees = [...employees, employee];
       await saveEmployees(updatedEmployees);
 
@@ -775,7 +830,9 @@ export default function HRDashboard() {
       setUanSkipReason("");
       setIsUanSkipped(false);
 
-      toast.success("Employee created successfully!");
+      toast.success("✨ Employee Created!", {
+        description: `${newEmployee.fullName} has been successfully added to the system.`,
+      });
     } catch (error) {
       console.error("Failed to create employee:", error);
       toast.error("Failed to create employee. Please try again.");
@@ -852,7 +909,9 @@ export default function HRDashboard() {
 
     setEditingDepartment(null);
     setEditDepartmentForm({ name: "", manager: "" });
-    toast.success("Department updated successfully");
+    toast.success("✅ Department Updated!", {
+      description: `${editingDepartment?.name} has been updated successfully.`,
+    });
   };
 
   const handleCancelEditDepartment = () => {
@@ -879,7 +938,9 @@ export default function HRDashboard() {
 
     // Reset form
     setNewDepartment({ name: "", manager: "" });
-    toast.success("Department created successfully");
+    toast.success("✨ Department Created!", {
+      description: `${newDepartment.name} has been successfully added to the system.`,
+    });
   };
 
   // Handle employee deletion
@@ -1772,7 +1833,10 @@ Generated on: ${new Date().toLocaleString()}
                             </SelectTrigger>
                             <SelectContent className="bg-slate-800 border-slate-700 text-white">
                               {departments.map((dept) => (
-                                <SelectItem key={dept._id || dept.id || dept.name} value={dept.name}>
+                                <SelectItem
+                                  key={dept._id || dept.id || dept.name}
+                                  value={dept.name}
+                                >
                                   {dept.name}
                                 </SelectItem>
                               ))}
@@ -2256,7 +2320,10 @@ Generated on: ${new Date().toLocaleString()}
                           All Departments
                         </SelectItem>
                         {departments.map((dept) => (
-                          <SelectItem key={dept._id || dept.id || dept.name} value={dept.name}>
+                          <SelectItem
+                            key={dept._id || dept.id || dept.name}
+                            value={dept.name}
+                          >
                             {dept.name} (
                             {getEmployeesByDepartment(dept.name).length})
                           </SelectItem>
@@ -2702,9 +2769,13 @@ Generated on: ${new Date().toLocaleString()}
                       const deptId = department._id || department.id;
 
                       return (
-                        <div key={deptId || department.name} className="space-y-3">
+                        <div
+                          key={deptId || department.name}
+                          className="space-y-3"
+                        >
                           <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-700">
-                            {editingDepartment?._id === deptId || editingDepartment?.id === department.id ? (
+                            {editingDepartment?._id === deptId ||
+                            editingDepartment?.id === department.id ? (
                               /* Edit Mode */
                               <div className="space-y-4">
                                 <div className="space-y-2">
@@ -2833,7 +2904,11 @@ Generated on: ${new Date().toLocaleString()}
                                   <div className="space-y-2">
                                     {departmentEmployees.map((employee) => (
                                       <div
-                                        key={employee._id || employee.id || employee.employeeId}
+                                        key={
+                                          employee._id ||
+                                          employee.id ||
+                                          employee.employeeId
+                                        }
                                         className="p-3 bg-slate-700/30 rounded-lg border border-slate-600"
                                       >
                                         <div className="flex items-center space-x-3">
@@ -3600,7 +3675,10 @@ Generated on: ${new Date().toLocaleString()}
                           </SelectTrigger>
                           <SelectContent className="bg-slate-800 border-slate-700 text-white">
                             {departments.map((dept) => (
-                              <SelectItem key={dept._id || dept.id || dept.name} value={dept.name}>
+                              <SelectItem
+                                key={dept._id || dept.id || dept.name}
+                                value={dept.name}
+                              >
                                 {dept.name}
                               </SelectItem>
                             ))}
@@ -4339,7 +4417,11 @@ Generated on: ${new Date().toLocaleString()}
                           <div className="space-y-3">
                             {employeeSalaryRecords.map((record) => (
                               <Card
-                                key={record._id || record.id || `${record.employeeId}-${record.month}`}
+                                key={
+                                  record._id ||
+                                  record.id ||
+                                  `${record.employeeId}-${record.month}`
+                                }
                                 className="bg-slate-800/30 border-slate-700"
                               >
                                 <CardContent className="p-4">

@@ -182,25 +182,51 @@ export default function EmployeeDetailsPage() {
 
         if (empRes.ok) {
           const empData = await empRes.json();
-          if (empData.success) employees = empData.data;
+          if (empData.success) {
+            // Normalize employees: map _id to id
+            employees = empData.data.map((emp: any) => ({
+              ...emp,
+              id: emp._id || emp.id,
+            }));
+          }
         }
         if (deptRes.ok) {
           const deptData = await deptRes.json();
-          if (deptData.success) dept = deptData.data;
+          if (deptData.success) {
+            // Normalize departments: map _id to id
+            dept = deptData.data.map((d: any) => ({
+              ...d,
+              id: d._id || d.id,
+            }));
+          }
         }
         if (salaryRes.ok) {
           const salaryData = await salaryRes.json();
-          if (salaryData.success) salary = salaryData.data;
+          if (salaryData.success) {
+            // Normalize salary records: map _id to id
+            salary = salaryData.data.map((s: any) => ({
+              ...s,
+              id: s._id || s.id,
+            }));
+          }
         }
 
         setDepartments(dept);
         setSalaryRecords(salary);
 
         if (employeeId) {
-          const found = employees.find((e) => e.id === employeeId);
+          const found = employees.find(
+            (e) => e.id === employeeId || e._id === employeeId,
+          );
           if (found) {
             setEmployee(found);
+            console.log("Employee loaded:", found);
           } else {
+            console.warn("Employee not found with ID:", employeeId);
+            toast.error("❌ Employee Not Found", {
+              description:
+                "This employee record could not be found in the system.",
+            });
             navigate("/hr");
           }
         }
@@ -242,6 +268,22 @@ export default function EmployeeDetailsPage() {
       reader.readAsDataURL(file);
     }
   };
+
+  const handleEditDocumentUpload =
+    (docKey: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          handleEditFormChange(docKey, result);
+          toast.success("📄 Document Uploaded!", {
+            description: "Document has been successfully uploaded.",
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    };
 
   const handleSaveEmployee = async () => {
     if (!employee) return;
@@ -285,7 +327,9 @@ export default function EmployeeDetailsPage() {
       setEmployee(updatedEmployee);
       setIsEditing(false);
       setEditForm({});
-      toast.success("Employee information updated successfully!");
+      toast.success("✅ Employee Updated!", {
+        description: `${employee.fullName}'s information has been successfully saved.`,
+      });
     } catch (error) {
       console.error("Failed to save employee:", error);
       toast.error("Failed to save employee information");
@@ -364,7 +408,9 @@ export default function EmployeeDetailsPage() {
       notes: "",
     });
     setShowSalaryForm(false);
-    toast.success("Salary record added successfully!");
+    toast.success("✨ Salary Record Created!", {
+      description: `Salary record for ${salaryForm.month} has been added successfully.`,
+    });
   };
 
   const handleDeleteSalaryRecord = (recordId: string) => {
@@ -832,12 +878,15 @@ export default function EmployeeDetailsPage() {
                 <div className="flex items-center space-x-2 border-b border-slate-700 pb-2">
                   <FileText className="h-5 w-5 text-purple-400" />
                   <h3 className="text-lg font-semibold text-white">
-                    Document Status
+                    Documents
                   </h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {documentTypes.map((docType) => {
-                    const hasDoc = employee[docType.key as keyof Employee];
+                    const hasDoc = isEditing
+                      ? (editForm[docType.key as keyof Employee] as string)
+                      : (employee[docType.key as keyof Employee] as string);
+
                     return (
                       <div
                         key={docType.key}
@@ -860,23 +909,73 @@ export default function EmployeeDetailsPage() {
                           </Badge>
                         </div>
 
-                        {!isEditing && hasDoc && (
-                          <Button
-                            onClick={() =>
-                              handleOpenDocumentPreview(
-                                hasDoc as string,
-                                docType.label,
-                                employee.fullName,
-                              )
-                            }
-                            variant="outline"
-                            size="sm"
-                            className="w-full text-xs border-blue-500 text-blue-400 hover:bg-blue-500/20"
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            Preview
-                          </Button>
-                        )}
+                        <div className="space-y-2">
+                          {/* Upload/Change Button */}
+                          <div className="relative">
+                            <input
+                              type="file"
+                              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                              onChange={
+                                isEditing
+                                  ? handleEditDocumentUpload(docType.key)
+                                  : handleEditDocumentUpload(docType.key)
+                              }
+                              disabled={!isEditing}
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={!isEditing}
+                              className={`w-full text-xs ${
+                                isEditing
+                                  ? hasDoc
+                                    ? "border-blue-500 text-blue-400 hover:bg-blue-500/20 cursor-pointer"
+                                    : "border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 cursor-pointer"
+                                  : "border-slate-700 text-slate-500 cursor-not-allowed opacity-50"
+                              }`}
+                            >
+                              <Upload className="h-3 w-3 mr-1" />
+                              {hasDoc ? "Change" : "Upload"}
+                            </Button>
+                          </div>
+
+                          {/* Preview Button - only if document exists */}
+                          {hasDoc && (
+                            <Button
+                              onClick={() =>
+                                handleOpenDocumentPreview(
+                                  hasDoc as string,
+                                  docType.label,
+                                  employee.fullName,
+                                )
+                              }
+                              variant="outline"
+                              size="sm"
+                              className="w-full text-xs border-blue-500 text-blue-400 hover:bg-blue-500/20"
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              Preview
+                            </Button>
+                          )}
+
+                          {/* Remove Button - only in edit mode if document exists */}
+                          {isEditing && hasDoc && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="w-full text-xs border-red-600 text-red-400 hover:bg-red-500/20"
+                              onClick={() =>
+                                handleEditFormChange(docType.key, "")
+                              }
+                            >
+                              <Trash2 className="h-3 w-3 mr-1" />
+                              Remove
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
