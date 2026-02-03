@@ -367,6 +367,17 @@ export default function HRDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [userRole, setUserRole] = useState("");
 
+  // Success modal state
+  const [successModal, setSuccessModal] = useState<{
+    isOpen: boolean;
+    title?: string;
+    message?: string;
+  }>({
+    isOpen: false,
+    title: "Success!",
+    message: "Data saved successfully!",
+  });
+
   // Blood groups
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
