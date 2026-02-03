@@ -400,7 +400,9 @@ export default function EmployeeDetailsPage() {
       notes: "",
     });
     setShowSalaryForm(false);
-    toast.success("Salary record added successfully!");
+    toast.success("✨ Salary Record Created!", {
+      description: `Salary record for ${salaryForm.month} has been added successfully.`,
+    });
   };
 
   const handleDeleteSalaryRecord = (recordId: string) => {
