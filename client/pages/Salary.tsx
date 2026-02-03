@@ -21,6 +21,8 @@ import type {
   SalaryWithDocs,
   UserRole,
 } from "@shared/api";
+import { toast } from "sonner";
+import { uploadFileToSupabase } from "@/lib/supabase";
 
 function useRoleHeaders(role: UserRole, userId: string) {
   return useMemo(
