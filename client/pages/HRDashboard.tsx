@@ -944,8 +944,10 @@ export default function HRDashboard() {
 
     setEditingDepartment(null);
     setEditDepartmentForm({ name: "", manager: "" });
-    toast.success("✅ Department Updated!", {
-      description: `${editingDepartment?.name} has been updated successfully.`,
+    setSuccessModal({
+      isOpen: true,
+      title: "✅ Department Updated!",
+      message: `${editingDepartment?.name} has been updated successfully.`,
     });
   };
 
