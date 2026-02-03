@@ -733,9 +733,10 @@ export default function HRDashboard() {
     setIsLoading(true);
 
     try {
+      const nextEmployeeId = getNextEmployeeId();
       const employee: Employee = {
-        employeeId: newEmployee.employeeId || getNextEmployeeId(),
         ...newEmployee,
+        employeeId: newEmployee.employeeId || nextEmployeeId,
         status: "active",
       };
 
