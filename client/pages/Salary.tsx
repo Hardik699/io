@@ -273,9 +273,9 @@ function SalaryRow({
       toast.dismiss();
 
       if (res.ok) {
-        toast.success("Documents uploaded successfully");
         setDocs(await res.json());
         setFiles(null); // Clear selected files
+        onUploadSuccess?.(); // Trigger success modal
       } else {
         toast.error("Failed to save document metadata");
       }
