@@ -319,7 +319,9 @@ export default function EmployeeDetailsPage() {
       setEmployee(updatedEmployee);
       setIsEditing(false);
       setEditForm({});
-      toast.success("Employee information updated successfully!");
+      toast.success("✅ Employee Updated!", {
+        description: `${employee.fullName}'s information has been successfully saved.`,
+      });
     } catch (error) {
       console.error("Failed to save employee:", error);
       toast.error("Failed to save employee information");
