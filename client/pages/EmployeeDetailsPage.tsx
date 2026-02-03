@@ -182,25 +182,46 @@ export default function EmployeeDetailsPage() {
 
         if (empRes.ok) {
           const empData = await empRes.json();
-          if (empData.success) employees = empData.data;
+          if (empData.success) {
+            // Normalize employees: map _id to id
+            employees = empData.data.map((emp: any) => ({
+              ...emp,
+              id: emp._id || emp.id,
+            }));
+          }
         }
         if (deptRes.ok) {
           const deptData = await deptRes.json();
-          if (deptData.success) dept = deptData.data;
+          if (deptData.success) {
+            // Normalize departments: map _id to id
+            dept = deptData.data.map((d: any) => ({
+              ...d,
+              id: d._id || d.id,
+            }));
+          }
         }
         if (salaryRes.ok) {
           const salaryData = await salaryRes.json();
-          if (salaryData.success) salary = salaryData.data;
+          if (salaryData.success) {
+            // Normalize salary records: map _id to id
+            salary = salaryData.data.map((s: any) => ({
+              ...s,
+              id: s._id || s.id,
+            }));
+          }
         }
 
         setDepartments(dept);
         setSalaryRecords(salary);
 
         if (employeeId) {
-          const found = employees.find((e) => e.id === employeeId);
+          const found = employees.find((e) => e.id === employeeId || e._id === employeeId);
           if (found) {
             setEmployee(found);
+            console.log("Employee loaded:", found);
           } else {
+            console.warn("Employee not found with ID:", employeeId);
+            toast.error("Employee not found");
             navigate("/hr");
           }
         }
