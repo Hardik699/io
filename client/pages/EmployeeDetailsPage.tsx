@@ -848,61 +848,63 @@ export default function EmployeeDetailsPage() {
                 </Badge>
               </div>
 
-              {/* Documents */}
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2 border-b border-slate-700 pb-2">
-                  <FileText className="h-5 w-5 text-purple-400" />
-                  <h3 className="text-lg font-semibold text-white">
-                    Document Status
-                  </h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {documentTypes.map((docType) => {
-                    const hasDoc = employee[docType.key as keyof Employee];
-                    return (
-                      <div
-                        key={docType.key}
-                        className="p-4 bg-slate-800/30 rounded border border-slate-700 space-y-3"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <docType.icon className="h-4 w-4 text-purple-400" />
-                          <span className="text-slate-300 font-medium">
-                            {docType.label}
-                          </span>
-                          <Badge
-                            variant="secondary"
-                            className={`text-xs ml-auto ${
-                              hasDoc
-                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                : "bg-red-500/20 text-red-400 border border-red-500/30"
-                            }`}
-                          >
-                            {hasDoc ? "✓" : "✗"}
-                          </Badge>
-                        </div>
+              {/* Documents - Only show when not editing */}
+              {!isEditing && (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2 border-b border-slate-700 pb-2">
+                    <FileText className="h-5 w-5 text-purple-400" />
+                    <h3 className="text-lg font-semibold text-white">
+                      Document Status
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {documentTypes.map((docType) => {
+                      const hasDoc = employee[docType.key as keyof Employee];
+                      return (
+                        <div
+                          key={docType.key}
+                          className="p-4 bg-slate-800/30 rounded border border-slate-700 space-y-3"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <docType.icon className="h-4 w-4 text-purple-400" />
+                            <span className="text-slate-300 font-medium">
+                              {docType.label}
+                            </span>
+                            <Badge
+                              variant="secondary"
+                              className={`text-xs ml-auto ${
+                                hasDoc
+                                  ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                  : "bg-red-500/20 text-red-400 border border-red-500/30"
+                              }`}
+                            >
+                              {hasDoc ? "✓" : "✗"}
+                            </Badge>
+                          </div>
 
-                        {!isEditing && hasDoc && (
-                          <Button
-                            onClick={() =>
-                              handleOpenDocumentPreview(
-                                hasDoc as string,
-                                docType.label,
-                                employee.fullName,
-                              )
-                            }
-                            variant="outline"
-                            size="sm"
-                            className="w-full text-xs border-blue-500 text-blue-400 hover:bg-blue-500/20"
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            Preview
-                          </Button>
-                        )}
-                      </div>
-                    );
-                  })}
+                          {hasDoc && (
+                            <Button
+                              onClick={() =>
+                                handleOpenDocumentPreview(
+                                  hasDoc as string,
+                                  docType.label,
+                                  employee.fullName,
+                                )
+                              }
+                              variant="outline"
+                              size="sm"
+                              className="w-full text-xs border-blue-500 text-blue-400 hover:bg-blue-500/20"
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              Preview
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         )}
