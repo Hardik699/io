@@ -904,7 +904,9 @@ export default function HRDashboard() {
 
     setEditingDepartment(null);
     setEditDepartmentForm({ name: "", manager: "" });
-    toast.success("Department updated successfully");
+    toast.success("✅ Department Updated!", {
+      description: `${editingDepartment?.name} has been updated successfully.`,
+    });
   };
 
   const handleCancelEditDepartment = () => {
