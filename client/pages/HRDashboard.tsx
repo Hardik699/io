@@ -675,16 +675,21 @@ export default function HRDashboard() {
   };
 
   const handleDocumentUpload =
-    (documentType: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (documentType: string) => async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result as string;
-          setDocumentPreviews({ ...documentPreviews, [documentType]: result });
-          setNewEmployee({ ...newEmployee, [documentType]: result });
-        };
-        reader.readAsDataURL(file);
+        try {
+          toast.loading(`Uploading ${documentType}...`);
+          const fileUrl = await uploadFileToSupabase(file, `documents/${documentType.toLowerCase().replace(/\s+/g, "-")}`);
+          toast.dismiss();
+          toast.success(`${documentType} uploaded successfully`);
+          setDocumentPreviews({ ...documentPreviews, [documentType]: fileUrl });
+          setNewEmployee({ ...newEmployee, [documentType]: fileUrl });
+        } catch (error) {
+          toast.dismiss();
+          console.error(`Error uploading ${documentType}:`, error);
+          toast.error(`Failed to upload ${documentType}`);
+        }
       }
     };
 
