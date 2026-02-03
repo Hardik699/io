@@ -286,7 +286,10 @@ export default function EmployeeDetailsPage() {
       if (file) {
         try {
           toast.loading(`Uploading ${docKey}...`);
-          const fileUrl = await uploadFileToSupabase(file, `documents/${docKey.toLowerCase().replace(/\s+/g, "-")}`);
+          const fileUrl = await uploadFileToSupabase(
+            file,
+            `documents/${docKey.toLowerCase().replace(/\s+/g, "-")}`,
+          );
           toast.dismiss();
           handleEditFormChange(docKey, fileUrl);
           toast.success("📄 Document Uploaded!", {

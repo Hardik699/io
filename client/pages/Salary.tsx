@@ -262,10 +262,17 @@ function SalaryRow({
       toast.loading("Uploading documents to Supabase...");
 
       // Upload each file to Supabase and collect URLs
-      const fileUrls: { originalName: string; url: string; mimeType: string }[] = [];
+      const fileUrls: {
+        originalName: string;
+        url: string;
+        mimeType: string;
+      }[] = [];
 
       for (const file of Array.from(files)) {
-        const fileUrl = await uploadFileToSupabase(file, "documents/salary-slips");
+        const fileUrl = await uploadFileToSupabase(
+          file,
+          "documents/salary-slips",
+        );
         fileUrls.push({
           originalName: file.name,
           url: fileUrl,

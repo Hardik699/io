@@ -250,10 +250,15 @@ const uploadDocs: RequestHandler = async (req, res) => {
     // Handle both JSON (with URLs from Supabase) and FormData (legacy support)
     const files = (req as any).files as Express.Multer.File[] | undefined;
     const body = req.body as any;
-    const fileUrls = body?.fileUrls as Array<{ originalName: string; url: string; mimeType: string }> | undefined;
+    const fileUrls = body?.fileUrls as
+      | Array<{ originalName: string; url: string; mimeType: string }>
+      | undefined;
 
     // Check if we have files or URLs
-    if ((!files || files.length === 0) && (!fileUrls || fileUrls.length === 0)) {
+    if (
+      (!files || files.length === 0) &&
+      (!fileUrls || fileUrls.length === 0)
+    ) {
       return res.status(400).json({ error: "No files uploaded" });
     }
 

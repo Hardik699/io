@@ -42,7 +42,7 @@ export default function SuccessModal({
       <div
         className={cn(
           "absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300",
-          visible ? "opacity-100" : "opacity-0"
+          visible ? "opacity-100" : "opacity-0",
         )}
         onClick={() => {
           setVisible(false);
@@ -54,9 +54,7 @@ export default function SuccessModal({
       <div
         className={cn(
           "relative z-10 mx-4 w-full max-w-sm transform rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8 shadow-2xl transition-all duration-300",
-          visible
-            ? "scale-100 opacity-100"
-            : "scale-95 opacity-0"
+          visible ? "scale-100 opacity-100" : "scale-95 opacity-0",
         )}
       >
         {/* Success Icon */}
@@ -66,14 +64,14 @@ export default function SuccessModal({
             <div
               className={cn(
                 "absolute inset-0 rounded-full bg-gradient-to-r from-green-400 to-emerald-400 opacity-20 blur-lg transition-all duration-500",
-                visible ? "scale-100" : "scale-0"
+                visible ? "scale-100" : "scale-0",
               )}
             />
             {/* Icon container */}
             <div
               className={cn(
                 "relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg transition-all duration-500",
-                visible ? "scale-100" : "scale-0"
+                visible ? "scale-100" : "scale-0",
               )}
             >
               <Check className="h-10 w-10 text-white" strokeWidth={3} />

@@ -660,7 +660,10 @@ export default function HRDashboard() {
     if (file) {
       try {
         toast.loading("Uploading photo...");
-        const fileUrl = await uploadFileToSupabase(file, "documents/employee-photos");
+        const fileUrl = await uploadFileToSupabase(
+          file,
+          "documents/employee-photos",
+        );
         toast.dismiss();
         toast.success("Photo uploaded successfully");
         setPhotoPreview(fileUrl);
@@ -673,12 +676,17 @@ export default function HRDashboard() {
     }
   };
 
-  const handlePassbookUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePassbookUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       try {
         toast.loading("Uploading bank passbook...");
-        const fileUrl = await uploadFileToSupabase(file, "documents/bank-passbooks");
+        const fileUrl = await uploadFileToSupabase(
+          file,
+          "documents/bank-passbooks",
+        );
         toast.dismiss();
         toast.success("Bank passbook uploaded successfully");
         setPassbookPreview(fileUrl);
@@ -692,12 +700,16 @@ export default function HRDashboard() {
   };
 
   const handleDocumentUpload =
-    (documentType: string) => async (e: React.ChangeEvent<HTMLInputElement>) => {
+    (documentType: string) =>
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
         try {
           toast.loading(`Uploading ${documentType}...`);
-          const fileUrl = await uploadFileToSupabase(file, `documents/${documentType.toLowerCase().replace(/\s+/g, "-")}`);
+          const fileUrl = await uploadFileToSupabase(
+            file,
+            `documents/${documentType.toLowerCase().replace(/\s+/g, "-")}`,
+          );
           toast.dismiss();
           toast.success(`${documentType} uploaded successfully`);
           setDocumentPreviews({ ...documentPreviews, [documentType]: fileUrl });
@@ -711,12 +723,17 @@ export default function HRDashboard() {
     };
 
   // Handle photo upload for edit form
-  const handleEditPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditPhotoUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       try {
         toast.loading("Uploading photo...");
-        const fileUrl = await uploadFileToSupabase(file, "documents/employee-photos");
+        const fileUrl = await uploadFileToSupabase(
+          file,
+          "documents/employee-photos",
+        );
         toast.dismiss();
         toast.success("Photo uploaded successfully");
         setEditPhotoPreview(fileUrl);
