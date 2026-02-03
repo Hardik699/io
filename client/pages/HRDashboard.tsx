@@ -483,6 +483,11 @@ export default function HRDashboard() {
               ...emp,
               id: emp._id, // Ensure id is synced with _id
             });
+          } else {
+            const errorData = await response.json();
+            const errorMsg = errorData.error || "Failed to update employee";
+            console.error("Failed to update employee:", errorMsg);
+            toast.error(`Update failed: ${errorMsg}`);
           }
         } else {
           // Create new employee - capture returned _id
@@ -502,10 +507,15 @@ export default function HRDashboard() {
                 id: result.data._id, // Sync id with _id for client-side lookups
               });
             } else {
-              employeesWithIds.push(emp);
+              const errorMsg = result.error || "Unknown error";
+              console.error("Server returned failure:", errorMsg);
+              toast.error(`Creation failed: ${errorMsg}`);
             }
           } else {
-            employeesWithIds.push(emp);
+            const errorData = await response.json().catch(() => ({}));
+            const errorMsg = errorData.error || `Server error: ${response.status}`;
+            console.error("Failed to create employee:", errorMsg, response.status);
+            toast.error(`Creation failed: ${errorMsg}`);
           }
         }
       }
@@ -513,6 +523,7 @@ export default function HRDashboard() {
       setEmployees(employeesWithIds);
     } catch (error) {
       console.error("Failed to save employees:", error);
+      toast.error("Failed to save employee. Check console for details.");
       setEmployees(updatedEmployees);
     }
   };
