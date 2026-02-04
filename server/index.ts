@@ -84,17 +84,17 @@ export function createServer() {
   app.post("/api/google-sheets/sync", syncToGoogleSheets);
   app.get("/api/google-sheets/info", getSpreadsheetInfo);
 
-  // Data APIs
-  app.use("/api/employees", employeesRouter);
-  app.use("/api/departments", departmentsRouter);
-  app.use("/api/it-accounts", itAccountsRouter);
-  app.use("/api/attendance", attendanceRouter);
-  app.use("/api/leave-requests", leaveRequestsRouter);
-  app.use("/api/salary-records", salaryRecordsRouter);
-  app.use("/api/system-assets", systemAssetsRouter);
+  // Protected Data APIs (require authentication)
+  app.use("/api/employees", isAuthenticated, requireHR, employeesRouter);
+  app.use("/api/departments", isAuthenticated, requireHR, departmentsRouter);
+  app.use("/api/it-accounts", isAuthenticated, itAccountsRouter);
+  app.use("/api/attendance", isAuthenticated, requireHR, attendanceRouter);
+  app.use("/api/leave-requests", isAuthenticated, requireHR, leaveRequestsRouter);
+  app.use("/api/salary-records", isAuthenticated, requireHR, salaryRecordsRouter);
+  app.use("/api/system-assets", isAuthenticated, systemAssetsRouter);
 
-  // Clear data API (for development/testing)
-  app.use("/api/clear-data", clearDataRouter);
+  // Clear data API (for development/testing - admin only)
+  app.use("/api/clear-data", isAuthenticated, requireAdmin, clearDataRouter);
 
   return app;
 }
