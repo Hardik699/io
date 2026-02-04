@@ -1,8 +1,73 @@
 import mongoose from "mongoose";
+import { User } from "./models/User";
+import bcrypt from "bcryptjs";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
 let isConnected = false;
+
+// Create initial admin user if none exists
+async function createInitialAdminIfNeeded() {
+  try {
+    const existingAdmin = await User.findOne({ role: "admin" });
+
+    if (!existingAdmin) {
+      // Create default admin user
+      const adminPassword = "Admin@123"; // Default password - MUST BE CHANGED
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(adminPassword, salt);
+
+      const admin = new User({
+        username: "admin",
+        passwordHash: hashedPassword,
+        role: "admin",
+        email: "admin@infoseum.local",
+      });
+
+      await admin.save();
+      console.log("⚠️  Default admin user created: username=admin, password=Admin@123");
+      console.log("⚠️  IMPORTANT: Change the admin password immediately!");
+    }
+
+    // Create HR user if not exists
+    const existingHR = await User.findOne({ role: "hr" });
+    if (!existingHR) {
+      const hrPassword = "Hr@info123";
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(hrPassword, salt);
+
+      const hr = new User({
+        username: "HR",
+        passwordHash: hashedPassword,
+        role: "hr",
+        email: "hr@infoseum.local",
+      });
+
+      await hr.save();
+      console.log("✅ HR user created: username=HR");
+    }
+
+    // Create IT user if not exists
+    const existingIT = await User.findOne({ role: "it" });
+    if (!existingIT) {
+      const itPassword = "it@2121";
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(itPassword, salt);
+
+      const it = new User({
+        username: "it",
+        passwordHash: hashedPassword,
+        role: "it",
+        email: "it@infoseum.local",
+      });
+
+      await it.save();
+      console.log("✅ IT user created: username=it");
+    }
+  } catch (error) {
+    console.error("Error creating initial users:", error);
+  }
+}
 
 export async function connectDB() {
   if (!MONGODB_URI) {
@@ -25,6 +90,10 @@ export async function connectDB() {
 
     isConnected = true;
     console.log("✅ Connected to MongoDB successfully");
+
+    // Create initial users if they don't exist
+    await createInitialAdminIfNeeded();
+
     return mongoose.connection;
   } catch (error) {
     console.error("❌ MongoDB connection error:", error);
