@@ -30,6 +30,7 @@ import {
   handleLogout,
   handleGetCurrentUser,
   createInitialAdmin,
+  resetAdminPassword,
 } from "./routes/auth";
 
 export function createServer() {
