@@ -23,7 +23,7 @@ export default function Login() {
     const users: Record<string, { password: string; role: string }> = {
       admin: { password: "admin", role: "admin" },
       it: { password: "it@2121", role: "it" },
-      HR: { password: "Hr@2121", role: "hr" },
+      HR: { password: "Hr@info123", role: "hr" },
     };
 
     // Check credentials
