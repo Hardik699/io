@@ -43,7 +43,7 @@ async function createInitialAdminIfNeeded() {
       });
 
       await hr.save();
-      console.log("✅ HR user created: username=hruser, password=Hr@info123");
+      console.log("✅ HR user (hruser) created successfully");
     }
 
     // Create IT user if not exists
@@ -61,7 +61,7 @@ async function createInitialAdminIfNeeded() {
       });
 
       await itUser.save();
-      console.log("✅ IT user created: username=ituser, password=it@2121");
+      console.log("✅ IT user (ituser) created successfully");
     }
   } catch (error) {
     console.error("Error creating initial users:", error);
