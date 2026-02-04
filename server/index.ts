@@ -63,6 +63,12 @@ export function createServer() {
   // Static for uploaded files
   app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
 
+  // Authentication routes (public)
+  app.post("/api/auth/login", handleLogin);
+  app.post("/api/auth/logout", handleLogout);
+  app.get("/api/auth/me", handleGetCurrentUser);
+  app.post("/api/auth/init-admin", createInitialAdmin);
+
   // Example API routes
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
