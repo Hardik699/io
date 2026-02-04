@@ -2,8 +2,10 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
+import cookieParser from "cookie-parser";
+import session from "express-session";
 import { handleDemo } from "./routes/demo";
-import { attachIdentity } from "./middleware/auth";
+import { attachIdentity, isAuthenticated, requireAdmin, requireHR } from "./middleware/auth";
 import { salariesRouter } from "./routes/salaries";
 import {
   syncToGoogleSheets,
@@ -18,6 +20,12 @@ import { leaveRequestsRouter } from "./routes/leave-requests";
 import { salaryRecordsRouter } from "./routes/salary-records";
 import { systemAssetsRouter } from "./routes/system-assets";
 import { clearDataRouter } from "./routes/clear-data";
+import {
+  handleLogin,
+  handleLogout,
+  handleGetCurrentUser,
+  createInitialAdmin,
+} from "./routes/auth";
 
 export function createServer() {
   const app = express();
@@ -28,10 +36,28 @@ export function createServer() {
     // Continue running even if MongoDB fails to connect
   });
 
+  // Session configuration
+  const sessionConfig: session.SessionOptions = {
+    secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production (HTTPS only)
+      httpOnly: true, // Prevent JavaScript access to session cookie
+      sameSite: "lax" as const, // CSRF protection
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  };
+
   // Middleware
-  app.use(cors());
+  app.use(cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:8080",
+    credentials: true, // Allow cookies to be sent
+  }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
+  app.use(session(sessionConfig));
   app.use(attachIdentity);
 
   // Static for uploaded files
