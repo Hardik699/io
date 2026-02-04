@@ -21,7 +21,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.48.0",
+    "@supabase/supabase-js": "^2.94.1",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "dotenv": "^17.2.1",
@@ -29,8 +29,8 @@
     "express-session": "^1.18.0",
     "googleapis": "^159.0.0",
     "mime-types": "^3.0.1",
-    "multer": "^2.0.2",
     "mongoose": "^8.0.0",
+    "multer": "^2.0.2",
     "nanoid": "^5.1.5",
     "xlsx": "^0.18.5",
     "zod": "^3.25.76"
