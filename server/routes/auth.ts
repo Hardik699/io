@@ -169,6 +169,10 @@ export const resetAdminPassword: RequestHandler = async (req, res) => {
   try {
     const newPassword = "Admin@123";
 
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
     // Find and update admin user
     const admin = await User.findOne({ username: "admin" });
 
@@ -176,7 +180,7 @@ export const resetAdminPassword: RequestHandler = async (req, res) => {
       // If no admin exists, create one
       const newAdmin = new User({
         username: "admin",
-        passwordHash: newPassword,
+        passwordHash: hashedPassword,
         role: "admin",
         email: "admin@infoseum.local",
       });
@@ -188,7 +192,7 @@ export const resetAdminPassword: RequestHandler = async (req, res) => {
     }
 
     // Update existing admin password
-    admin.passwordHash = newPassword;
+    admin.passwordHash = hashedPassword;
     await admin.save();
 
     return res.json({
