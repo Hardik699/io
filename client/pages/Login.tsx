@@ -19,24 +19,33 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Define users with their roles
-    const users: Record<string, { password: string; role: string }> = {
-      admin: { password: "admin", role: "admin" },
-      it: { password: "it@2121", role: "it" },
-      HR: { password: "Hr@info123", role: "hr" },
-    };
+    try {
+      // Send login request to server
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Send cookies with request
+        body: JSON.stringify({ username, password }),
+      });
 
-    // Check credentials
-    if (users[username] && users[username].password === password) {
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("userRole", users[username].role);
-      localStorage.setItem("currentUser", username);
-      navigate("/");
-    } else {
-      alert("Invalid credentials. Please check your username and password.");
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Store minimal user info in localStorage for UI purposes
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("userRole", data.data.role);
+        localStorage.setItem("currentUser", data.data.username);
+        navigate("/");
+      } else {
+        // Generic error message - don't leak whether user exists
+        alert(data.error || "Invalid credentials. Please try again.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Login failed. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (
