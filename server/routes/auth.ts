@@ -164,4 +164,44 @@ export const createInitialAdmin: RequestHandler = async (req, res) => {
   }
 };
 
+// Reset admin password (development endpoint)
+export const resetAdminPassword: RequestHandler = async (req, res) => {
+  try {
+    const newPassword = "Admin@123";
+
+    // Find and update admin user
+    const admin = await User.findOne({ username: "admin" });
+
+    if (!admin) {
+      // If no admin exists, create one
+      const newAdmin = new User({
+        username: "admin",
+        passwordHash: newPassword,
+        role: "admin",
+        email: "admin@infoseum.local",
+      });
+      await newAdmin.save();
+      return res.json({
+        success: true,
+        message: "Admin user created with password: Admin@123",
+      });
+    }
+
+    // Update existing admin password
+    admin.passwordHash = newPassword;
+    await admin.save();
+
+    return res.json({
+      success: true,
+      message: "Admin password reset to: Admin@123",
+    });
+  } catch (error) {
+    console.error("Reset admin password error:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to reset admin password",
+    });
+  }
+};
+
 export default router;
