@@ -37,14 +37,14 @@ async function createInitialAdminIfNeeded() {
       const hashedPassword = await bcrypt.hash(hrPassword, salt);
 
       const hr = new User({
-        username: "HR",
+        username: "hruser",
         passwordHash: hashedPassword,
         role: "hr",
         email: "hr@infoseum.local",
       });
 
       await hr.save();
-      console.log("✅ HR user created: username=HR");
+      console.log("✅ HR user created: username=hruser, password=Hr@info123");
     }
 
     // Create IT user if not exists
@@ -54,15 +54,15 @@ async function createInitialAdminIfNeeded() {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(itPassword, salt);
 
-      const it = new User({
-        username: "it",
+      const itUser = new User({
+        username: "ituser",
         passwordHash: hashedPassword,
         role: "it",
         email: "it@infoseum.local",
       });
 
-      await it.save();
-      console.log("✅ IT user created: username=it");
+      await itUser.save();
+      console.log("✅ IT user created: username=ituser, password=it@2121");
     }
   } catch (error) {
     console.error("Error creating initial users:", error);
