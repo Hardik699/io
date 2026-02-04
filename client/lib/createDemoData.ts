@@ -181,7 +181,7 @@ export function createDemoSystemAssets(): Asset[] {
       createdAt: today,
       vonageNumber: "+1-555-123-4567",
       vonageExtCode: "101",
-      vonagePassword: "demo123!",
+      // vonagePassword: removed for security - credentials should be added manually
     },
   ];
 
