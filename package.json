@@ -21,11 +21,14 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "express-session": "^1.18.0",
     "googleapis": "^159.0.0",
     "mime-types": "^3.0.1",
     "multer": "^2.0.2",
+    "mongoose": "^8.0.0",
     "nanoid": "^5.1.5",
     "xlsx": "^0.18.5",
     "zod": "^3.25.76"
