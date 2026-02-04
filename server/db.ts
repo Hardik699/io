@@ -28,6 +28,8 @@ async function createInitialAdminIfNeeded() {
       console.log(
         "⚠️  Default admin user created. IMPORTANT: Change the admin password immediately!",
       );
+    } else {
+      console.log("✅ Admin user already exists in database");
     }
 
     // Create HR user if not exists
