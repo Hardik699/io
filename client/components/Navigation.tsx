@@ -44,7 +44,18 @@ export default function AppNav() {
     setCurrentUser(user || "");
   }, [location]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Call logout API endpoint to destroy server session
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+
+    // Clear client-side storage
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("userRole");
     localStorage.removeItem("currentUser");
