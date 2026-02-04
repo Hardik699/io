@@ -5,7 +5,12 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import { handleDemo } from "./routes/demo";
-import { attachIdentity, isAuthenticated, requireAdmin, requireHR } from "./middleware/auth";
+import {
+  attachIdentity,
+  isAuthenticated,
+  requireAdmin,
+  requireHR,
+} from "./middleware/auth";
 import { salariesRouter } from "./routes/salaries";
 import {
   syncToGoogleSheets,
@@ -38,7 +43,8 @@ export function createServer() {
 
   // Session configuration
   const sessionConfig: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
+    secret:
+      process.env.SESSION_SECRET || "your-secret-key-change-in-production",
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -50,10 +56,12 @@ export function createServer() {
   };
 
   // Middleware
-  app.use(cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:8080",
-    credentials: true, // Allow cookies to be sent
-  }));
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN || "http://localhost:8080",
+      credentials: true, // Allow cookies to be sent
+    }),
+  );
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
@@ -89,8 +97,18 @@ export function createServer() {
   app.use("/api/departments", isAuthenticated, requireHR, departmentsRouter);
   app.use("/api/it-accounts", isAuthenticated, itAccountsRouter);
   app.use("/api/attendance", isAuthenticated, requireHR, attendanceRouter);
-  app.use("/api/leave-requests", isAuthenticated, requireHR, leaveRequestsRouter);
-  app.use("/api/salary-records", isAuthenticated, requireHR, salaryRecordsRouter);
+  app.use(
+    "/api/leave-requests",
+    isAuthenticated,
+    requireHR,
+    leaveRequestsRouter,
+  );
+  app.use(
+    "/api/salary-records",
+    isAuthenticated,
+    requireHR,
+    salaryRecordsRouter,
+  );
   app.use("/api/system-assets", isAuthenticated, systemAssetsRouter);
 
   // Clear data API (for development/testing - admin only)

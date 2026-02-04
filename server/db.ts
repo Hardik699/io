@@ -25,7 +25,9 @@ async function createInitialAdminIfNeeded() {
       });
 
       await admin.save();
-      console.log("⚠️  Default admin user created. IMPORTANT: Change the admin password immediately!");
+      console.log(
+        "⚠️  Default admin user created. IMPORTANT: Change the admin password immediately!",
+      );
     }
 
     // Create HR user if not exists

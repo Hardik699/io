@@ -21,7 +21,11 @@ declare module "express-serve-static-core" {
 // Middleware to attach user identity from session
 export const attachIdentity: RequestHandler = (req, _res, next) => {
   // Get role from session first, then fallback to header for backwards compatibility
-  const role = (req.session?.userRole || req.header("x-role") || "user").toLowerCase() as UserRole;
+  const role = (
+    req.session?.userRole ||
+    req.header("x-role") ||
+    "user"
+  ).toLowerCase() as UserRole;
   const userId = req.session?.userId || req.header("x-user-id") || "anonymous";
   req.userRole = role;
   req.userId = userId;
