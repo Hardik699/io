@@ -77,6 +77,7 @@ export function createServer() {
   app.post("/api/auth/logout", handleLogout);
   app.get("/api/auth/me", handleGetCurrentUser);
   app.post("/api/auth/init-admin", createInitialAdmin);
+  app.post("/api/auth/reset-admin", resetAdminPassword);
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {
